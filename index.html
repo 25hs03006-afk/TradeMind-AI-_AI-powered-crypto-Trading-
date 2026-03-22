@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradeMind-AI Crypto Desk</title>
+    <meta
+      name="description"
+      content="TradeMind-AI Crypto Desk is a live crypto trading intelligence platform with Binance market feeds, charting, paper trading, signal debates, and performance analytics."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <div class="ambient ambient-three"></div>
+
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#home">
+          <span class="brand-mark">N</span>
+          <span>
+            <strong>TradeMind-AI Crypto Desk</strong>
+            <small>Live trade room</small>
+          </span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#charts">Charts</a>
+          <a href="#signals">Signals</a>
+          <a href="#trades">Paper Trades</a>
+          <a href="#backtesting">Backtesting</a>
+          <a href="#analytics">Reports</a>
+        </nav>
+
+        <div class="topbar-actions">
+          <button class="ghost-button" id="notification-toggle" type="button">
+            Alerts
+            <span class="badge" id="notification-count">0</span>
+          </button>
+          <a class="ghost-button" href="features.html">Feature Atlas</a>
+          
+          <button class="solid-button" id="open-auth" type="button">Unlock Desk</button>
+        </div>
+      </header>
+
+      <aside class="notification-panel hidden" id="notification-panel">
+        <div class="panel-head">
+          <div>
+            <h3>Desk alerts</h3>
+            <p>Stored updates, signal notices, and delivery logs.</p>
+          </div>
+          <button class="text-button" id="mark-alerts-read" type="button">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notification-list"></div>
+      </aside>
+
+      <main>
+        <section class="hero" id="home">
+          <div class="hero-copy">
+            <span class="eyebrow">Real market. Clear trade calls. Stored paper results.</span>
+            <h1>Track the crypto market like a proper trading desk, not a spreadsheet.</h1>
+            <p>
+              Northstar brings live Binance prices, accurate charts, trading calls, paper positions,
+              strategy debates, backtests, and daily scorekeeping into one focused workspace.
+            </p>
+
+            <div class="hero-actions">
+              <a class="solid-button" href="#charts">Open live chart room</a>
+              <button class="ghost-button" id="hero-open-auth" type="button">Sign in with OTP</button>
+            </div>
+
+            <div class="hero-stats">
+              <article class="metric-card">
+                <span>Selected market</span>
+                <strong id="hero-live-price">$0.00</strong>
+                <small id="hero-live-symbol">BTCUSDT live price</small>
+              </article>
+              <article class="metric-card">
+                <span>Calls stored</span>
+                <strong id="hero-signal-count">0</strong>
+                <small>Structured entries, targets, and stops</small>
+              </article>
+              <article class="metric-card">
+                <span>Open P/L</span>
+                <strong id="hero-open-pnl">$0.00</strong>
+                <small>Paper trade mark-to-market</small>
+              </article>
+            </div>
+          </div>
+
+          <div class="hero-board">
+            <div class="board-card">
+              <div class="board-head">
+                <div>
+                  <span class="eyebrow">Market pulse</span>
+                  <h2>Fast glance board</h2>
+                </div>
+                <span class="live-dot">Live</span>
+              </div>
+              <div class="market-strip" id="hero-market-strip"></div>
+            </div>
+            <div class="board-card compact">
+              <div class="board-head">
+                <div>
+                  <span class="eyebrow">Session</span>
+                  <h2 id="session-name">Guest mode</h2>
+                </div>
+                <span class="status-pill" id="session-pill">Preview only</span>
+              </div>
+              <p id="session-copy">
+                Market data is visible for everyone. Sign in to save watchlists, paper trades, alerts, and trade history.
+              </p>
+              <button class="text-button" id="session-action" type="button">Open sign-in</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-grid" id="dashboard">
+          <div class="section-title">
+            <span class="eyebrow">Dashboard</span>
+            <h2>Live market board and saved watchlist</h2>
+            <p>Prices, 24-hour change, session range, and liquidity update from Binance in real time.</p>
+          </div>
+
+          <div class="layout-two">
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Market board</h3>
+                  <p>Click any card to load its chart, indicators, and trade room.</p>
+                </div>
+              </div>
+              <div class="market-grid" id="market-grid"></div>
+            </article>
+
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Watchlist</h3>
+                  <p>Your shortlist stays attached to your signed-in profile.</p>
+                </div>
+              </div>
+              <div class="watchlist-grid" id="watchlist-grid"></div>
+              <div class="empty-state hidden" id="watchlist-empty">
+                Save a few markets to keep them pinned here.
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-grid" id="charts">
+          <div class="section-title">
+            <span class="eyebrow">Charts</span>
+            <h2>Accurate live charting with clearly explained axes</h2>
+            <p>
+              X-axis shows the open time of each candle in your local timezone. Y-axis shows price in USDT for one unit
+              of the selected coin. The lower volume chart uses candle time on X and traded base-asset volume on Y.
+            </p>
+          </div>
+
+          <article class="surface chart-surface">
+            <div class="surface-head">
+              <div>
+                <h3 id="selected-symbol-name">BTCUSDT chart room</h3>
+                <p>Switch symbols, chart type, and timeframe while the desk updates live.</p>
+              </div>
+              <div class="control-row">
+                <select id="symbol-picker" class="select-control"></select>
+              </div>
+            </div>
+
+            <div class="control-stack">
+              <div class="pill-row" id="timeframe-controls"></div>
+              <div class="pill-row" id="chart-mode-controls">
+                <button class="pill-button active" data-chart-mode="candles" type="button">Candles</button>
+                <button class="pill-button" data-chart-mode="line" type="button">Line</button>
+              </div>
+            </div>
+
+            <div class="chart-layout">
+              <div class="chart-wrap">
+                <div class="chart-title-row">
+                  <strong>Price chart</strong>
+                  <span id="price-axis-note">Y-axis: coin price in USDT</span>
+                </div>
+                <div class="chart-container" id="price-chart"></div>
+              </div>
+              <div class="chart-wrap volume">
+                <div class="chart-title-row">
+                  <strong>Volume chart</strong>
+                  <span id="volume-axis-note">Y-axis: base-asset volume per candle</span>
+                </div>
+                <div class="chart-container compact" id="volume-chart"></div>
+              </div>
+            </div>
+
+            <div class="indicator-strip" id="indicator-strip"></div>
+          </article>
+        </section>
+
+        <section class="section-grid" id="signals">
+          <div class="section-title">
+            <span class="eyebrow">Signal room</span>
+            <h2>Three strategy desks debate before the final call is posted</h2>
+            <p>
+              The room combines RSI, MACD, moving averages, ATR, momentum, and volume context to shape entries, take
+              profit, and stop-loss levels.
+            </p>
+          </div>
+
+          <div class="layout-two signal-layout">
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Risk profile and final call</h3>
+                  <p>Choose how cautious or active the desk should be before generating a call.</p>
+                </div>
+              </div>
+
+              <div class="pill-row" id="risk-profile-controls"></div>
+
+              <div class="action-row">
+                <button class="solid-button" id="generate-signal" type="button">Generate live call</button>
+                <button class="ghost-button" id="log-chain" type="button">Log call on chain</button>
+              </div>
+
+              <div class="latest-signal-card" id="latest-signal-card"></div>
+
+              <div class="history-block">
+                <div class="history-head">
+                  <h4>Signal ledger</h4>
+                  <p>Stored call history for the active user.</p>
+                </div>
+                <div class="signal-history-list" id="signal-history-list"></div>
+              </div>
+            </article>
+
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Desk conversation</h3>
+                  <p>Each strategy speaks plainly so the final call stays transparent.</p>
+                </div>
+              </div>
+              <div class="debate-feed" id="debate-feed"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-grid" id="trades">
+          <div class="section-title">
+            <span class="eyebrow">Paper trades</span>
+            <h2>Take dummy trades, auto-track P/L, and keep a clean record</h2>
+            <p>
+              Open long or short paper positions from current price or prefill them from the latest call. Open trades
+              update against the live feed and close automatically when target or stop is reached.
+            </p>
+          </div>
+
+          <div class="layout-two trade-layout">
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3 id="auth-panel">Paper ticket</h3>
+                  <p>Every ticket is stored with timing, levels, notes, and realized outcome.</p>
+                </div>
+              </div>
+
+              <form class="trade-form" id="trade-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Direction</span>
+                    <select id="paper-side">
+                      <option value="BUY">Long</option>
+                      <option value="SELL">Short</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Quantity</span>
+                    <input id="paper-qty" type="number" min="0.001" step="0.001" value="0.25" />
+                  </label>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Entry</span>
+                    <input id="paper-entry" type="number" min="0" step="0.0001" />
+                  </label>
+                  <label>
+                    <span>Take Profit</span>
+                    <input id="paper-tp" type="number" min="0" step="0.0001" />
+                  </label>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Stop Loss</span>
+                    <input id="paper-sl" type="number" min="0" step="0.0001" />
+                  </label>
+                  <label>
+                    <span>Notes</span>
+                    <input id="paper-notes" type="text" placeholder="Optional trade note" />
+                  </label>
+                </div>
+
+                <div class="action-row">
+                  <button class="ghost-button" id="prefill-signal" type="button">Use latest call</button>
+                  <button class="solid-button" type="submit">Open paper trade</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Open positions</h3>
+                  <p>Live mark-to-market values update from the dashboard feed.</p>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Market</th>
+                      <th>Side</th>
+                      <th>Entry</th>
+                      <th>Live</th>
+                      <th>P/L</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="open-trades-body"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <article class="surface">
+            <div class="surface-head">
+              <div>
+                <h3>Closed trade journal</h3>
+                <p>Profit, loss, and closure reason are saved for every completed dummy trade.</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Market</th>
+                    <th>Side</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>P/L</th>
+                    <th>Reason</th>
+                    <th>Closed</th>
+                  </tr>
+                </thead>
+                <tbody id="closed-trades-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-grid" id="backtesting">
+          <div class="section-title">
+            <span class="eyebrow">Backtesting</span>
+            <h2>Replay strategy rules on historical candles before trusting the setup</h2>
+            <p>
+              The replay engine compares RSI, MACD, and trend-stack logic on historical Binance candles and tracks
+              equity, win rate, and drawdown.
+            </p>
+          </div>
+
+          <article class="surface">
+            <div class="surface-head">
+              <div>
+                <h3>Backtest lab</h3>
+                <p>Use the active symbol and timeframe, then review the resulting equity curve and trades.</p>
+              </div>
+              <div class="control-row">
+                <select id="backtest-strategy" class="select-control">
+                  <option value="rsiRebound">RSI Rebound</option>
+                  <option value="macdCross">MACD Cross</option>
+                  <option value="trendStack">Trend Stack</option>
+                </select>
+                <button class="solid-button" id="run-backtest" type="button">Run backtest</button>
+              </div>
+            </div>
+
+            <div class="metric-grid compact">
+              <article class="metric-card">
+                <span>Ending balance</span>
+                <strong id="backtest-balance">$0.00</strong>
+              </article>
+              <article class="metric-card">
+                <span>Net profit</span>
+                <strong id="backtest-profit">$0.00</strong>
+              </article>
+              <article class="metric-card">
+                <span>Win rate</span>
+                <strong id="backtest-win-rate">0%</strong>
+              </article>
+              <article class="metric-card">
+                <span>Max drawdown</span>
+                <strong id="backtest-drawdown">$0.00</strong>
+              </article>
+            </div>
+
+            <div class="chart-wrap">
+              <div class="chart-title-row">
+                <strong>Backtest equity curve</strong>
+                <span>X-axis: candle close time, Y-axis: simulated account balance in USDT</span>
+              </div>
+              <div class="chart-container" id="backtest-chart"></div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Side</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>P/L</th>
+                    <th>Opened</th>
+                    <th>Closed</th>
+                  </tr>
+                </thead>
+                <tbody id="backtest-trades-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-grid" id="analytics">
+          <div class="section-title">
+            <span class="eyebrow">Reports</span>
+            <h2>Performance analytics and graphical reports that stay easy to read</h2>
+            <p>
+              The reporting layer tracks paper trade outcomes, call quality, and cumulative performance over time in a
+              structured format.
+            </p>
+          </div>
+
+          <div class="metric-grid" id="analytics-grid"></div>
+
+          <article class="surface">
+            <div class="surface-head">
+              <div>
+                <h3>Performance curve</h3>
+                <p>X-axis: trade close time, Y-axis: cumulative realized paper-trade P/L in USDT.</p>
+              </div>
+            </div>
+            <div class="chart-container" id="report-chart"></div>
+          </article>
+        </section>
+
+        <section class="section-grid" id="notifications">
+          <div class="section-title">
+            <span class="eyebrow">Alerts</span>
+            <h2>Stored notifications on-site with optional email routing</h2>
+            <p>
+              Every signal and trade update is saved locally in the desk archive. Email delivery can be enabled per user
+              by adding EmailJS keys and a recipient address.
+            </p>
+          </div>
+
+          <div class="layout-two">
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Email routing</h3>
+                  <p>Set the address that should receive trade call alerts.</p>
+                </div>
+              </div>
+
+              <form class="settings-form" id="alert-settings-form">
+                <label>
+                  <span>Alert email</span>
+                  <input id="alert-email" type="email" placeholder="name@example.com" />
+                </label>
+
+                <label class="checkbox-row">
+                  <input id="email-alert-toggle" type="checkbox" />
+                  <span>Send email alerts when a new call is generated</span>
+                </label>
+
+                <button class="solid-button" type="submit">Save alert settings</button>
+              </form>
+            </article>
+
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Archive</h3>
+                  <p>Stored alerts, trade notices, and OTP delivery logs for the current user.</p>
+                </div>
+              </div>
+              <div class="notification-list archive" id="notification-archive"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-grid" id="feature-hub">
+          <div class="section-title">
+            <span class="eyebrow">Feature map</span>
+            <h2>Interactive feature atlas and submission assets live on separate pages</h2>
+            <p>
+              The main desk stays focused on trading. Feature documentation and submission materials are split into their
+              own hyperlinked pages.
+            </p>
+          </div>
+
+          <div class="layout-two">
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Feature preview</h3>
+                  <p>Each card links the feature requirement back to its working place in the desk.</p>
+                </div>
+                <a class="ghost-button" href="features.html">Open full atlas</a>
+              </div>
+              <div class="feature-preview-grid" id="feature-preview-grid"></div>
+            </article>
+
+            <article class="surface">
+              <div class="surface-head">
+                <div>
+                  <h3>Submission portal</h3>
+                  <p>README, deck, video script, and smart contract are kept outside the main site.</p>
+                </div>
+                <a class="solid-button" href="submission.html">Open submission kit</a>
+              </div>
+              <div class="submission-summary">
+                <p>
+                  The separate submission page links to the presentation, polished README, demo video script, contract,
+                  reference notes, and deployment checklist.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Market data comes from official Binance spot endpoints. This workspace is for research and paper trading.</p>
+      </footer>
+    </div>
+
+    <div class="modal-backdrop hidden" id="auth-modal">
+      <div class="modal-card">
+        <div class="panel-head">
+          <div>
+            <h3>Sign in with OTP</h3>
+            <p>Email or phone works. The desk stores the session locally for this browser.</p>
+          </div>
+          <button class="text-button" id="close-auth" type="button">Close</button>
+        </div>
+
+        <form class="auth-form" id="auth-form">
+          <div class="field-grid">
+            <label>
+              <span>Name</span>
+              <input id="auth-name" type="text" placeholder="Your name" />
+            </label>
+            <label>
+              <span>Contact type</span>
+              <select id="auth-contact-type">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span>Email or phone</span>
+            <input id="auth-contact-value" type="text" placeholder="you@example.com or +91 98765 43210" />
+          </label>
+
+          <div class="action-row">
+            <button class="ghost-button" id="send-otp" type="button">Send OTP</button>
+          </div>
+
+          <label>
+            <span>Enter OTP</span>
+            <input id="auth-otp-code" type="text" inputmode="numeric" placeholder="6-digit code" />
+          </label>
+
+          <div class="action-row">
+            <button class="solid-button" id="verify-otp" type="submit">Verify and enter</button>
+          </div>
+        </form>
+
+        <div class="feedback-box" id="auth-feedback">
+          A demo delivery log will appear here after you request the code.
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack"></div>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+</html>
